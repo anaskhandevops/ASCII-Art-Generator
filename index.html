@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCII Art Generator (Image)!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles */
+        html, body { height: 100%; } /* Ensure body takes full height */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FFFCEB; /* Requested background */
+            display: flex;
+            flex-direction: column; /* Stack content and footer vertically */
+        }
+
+        /* Main container styling */
+        .main-container {
+            background-color: #ffffff;
+            border: 3px solid #2D3748;
+            border-radius: 16px;
+            box-shadow: 8px 8px 0px #2D3748;
+            width: 100%;
+            max-width: 56rem; /* max-w-4xl - Adjusted for single input focus */
+            margin: 2rem auto;
+            padding: 1.5rem sm:p-8; /* p-6 sm:p-8 */
+            flex-shrink: 0; /* Prevent container from shrinking */
+        }
+        main { flex-grow: 1; } /* Allow main content to grow */
+
+         /* Section Container Styling */
+        .section-container {
+             background-color: #FFF7ED; /* orange-50 */
+             border: 2px solid #FDBA74; /* orange-300 */
+             border-radius: 12px;
+             box-shadow: 4px 4px 0px #FDBA74; /* Offset shadow using border color */
+             padding: 1.5rem; /* p-6 */
+             margin-bottom: 1.5rem; /* mb-6 */
+        }
+         .results-container {
+             background-color: #0F172A; /* slate-900 - Good for ASCII */
+             border: 3px solid #475569; /* slate-600 */
+             border-radius: 12px;
+             box-shadow: 4px 4px 0px #475569;
+             padding: 1rem; /* p-4 */
+             margin-top: 1.5rem; /* mt-6 */
+             position: relative; /* For copy button positioning */
+        }
+
+        /* Playful Input/Textarea/File Styling */
+        input[type="text"] { /* For Custom Charset */
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: #ffffff;
+            border: 3px solid #4A5568;
+            border-radius: 10px;
+            color: #1F2937; /* gray-800 */
+            font-family: 'Inter', sans-serif; /* Use default font for input */
+            font-size: 0.9rem;
+            line-height: 1.6;
+            transition: transform 0.15s ease-out, box-shadow 0.15s ease-out, border-color 0.15s ease-out;
+            box-shadow: 3px 3px 0px #4A5568;
+        }
+        input::placeholder { color: #A0AEC0; /* gray-500 */ }
+        input:focus {
+            outline: none;
+            border-color: #FF7F50; /* Coral */
+            box-shadow: 3px 3px 0px #FF7F50, 0 0 0 3px #FFFCEB;
+            transform: translateY(-1px) translateX(-1px);
+        }
+
+         /* File Input */
+         input[type="file"] { display: none; }
+         .file-input-label {
+             background-color: #ffffff; color: #DD6B20; font-weight: 600;
+             padding: 0.6rem 1rem; border-radius: 10px; border: 3px solid #4A5568;
+             box-shadow: 3px 3px 0px #4A5568; transition: all 0.15s ease-out;
+             cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;
+             font-size: 0.875rem;
+         }
+         .file-input-label:hover { background-color: #FEF3C7; box-shadow: 4px 4px 0px #4A5568; transform: translateY(-1px); }
+         .file-input-label:active { background-color: #FDE68A; box-shadow: 1px 1px 0px #4A5568; transform: translateY(1px) translateX(1px); }
+
+        /* Playful Select Styling */
+        select {
+            width: 100%;
+            padding: 0.65rem 1rem; /* Adjusted padding */
+            background-color: #ffffff;
+            border: 3px solid #4A5568;
+            border-radius: 10px;
+            color: #2D3748;
+            font-weight: 500;
+            transition: transform 0.15s ease-out, box-shadow 0.15s ease-out, border-color 0.15s ease-out;
+            box-shadow: 3px 3px 0px #4A5568;
+            font-size: 0.9rem;
+            -webkit-appearance: none; -moz-appearance: none; appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%234A5568' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.75rem center; background-repeat: no-repeat; background-size: 1.25em 1.25em; padding-right: 2.75rem;
+        }
+        select:focus {
+            outline: none;
+            border-color: #FF7F50; /* Coral */
+            box-shadow: 3px 3px 0px #FF7F50, 0 0 0 3px #FFFCEB;
+            transform: translateY(-1px) translateX(-1px);
+        }
+
+
+        /* Playful Action Button Style */
+        .action-button {
+            background-color: #FF7F50; /* Coral */
+            color: white; font-weight: 700; padding: 0.85rem 2rem;
+            border-radius: 0.75rem; border: 3px solid #2D3748;
+            box-shadow: 5px 5px 0px #2D3748; transition: all 0.15s ease-out;
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+            text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.95rem;
+        }
+        .action-button:hover { background-color: #FF6347; box-shadow: 6px 6px 0px #2D3748; transform: translateY(-2px) translateX(-1px); }
+        .action-button:active { background-color: #CD5C5C; box-shadow: 2px 2px 0px #2D3748; transform: translateY(2px) translateX(2px); }
+        .action-button:focus { outline: none; box-shadow: 5px 5px 0px #2D3748, 0 0 0 3px #FFFCEB, 0 0 0 5px #FF7F50; }
+
+         /* Copy Button Style */
+         .copy-button {
+             position: absolute; top: 0.75rem; right: 0.75rem; /* Position top-right */
+             background-color: #34D399; /* Emerald-400 */ color: white;
+             padding: 0.4rem 0.8rem; font-size: 0.75rem; font-weight: 600;
+             border: 2px solid #059669; /* Emerald-600 */ border-radius: 8px;
+             box-shadow: 2px 2px 0px #059669; transition: all 0.15s ease-out;
+             cursor: pointer; display: flex; align-items: center; gap: 0.3rem;
+             opacity: 0.8;
+         }
+         .copy-button:hover { opacity: 1; transform: translateY(-1px); box-shadow: 3px 3px 0px #047857;}
+         .copy-button:active { transform: translateY(1px); box-shadow: 1px 1px 0px #059669;}
+
+
+        /* ASCII Output Area */
+        #asciiOutput {
+            font-family: 'Courier New', Courier, monospace; /* Monospace font */
+            white-space: pre; /* Preserve whitespace and line breaks */
+            overflow: auto; /* Add scrollbars if needed */
+            color: #E2E8F0; /* slate-200 - Light text on dark bg */
+            line-height: 1.0; /* Adjust line height for density */
+            font-size: 10px; /* Adjust font size for detail */
+            text-align: center;
+            background-color: transparent; /* Inherit from container */
+            min-height: 200px;
+            padding: 0.5rem;
+        }
+        .placeholder-text { color: #94A3B8; font-style: italic; text-align: center; padding: 1rem; font-family: 'Inter', sans-serif; font-size: 0.9rem;}
+
+        /* Image Preview */
+         .image-preview-box {
+             border: 3px dashed #FDBA74; /* orange-300 */
+             border-radius: 12px; padding: 0.5rem;
+             min-height: 50px; max-height: 150px; /* Limit height */
+             display: flex; justify-content: center; align-items: center;
+             background-color: #FFFBEB; /* amber-50 */
+             margin-top: 0.75rem; /* mt-3 */
+             overflow: hidden;
+         }
+         .image-preview-box img { max-width: 100%; max-height: 140px; height: auto; width: auto; display: block; border-radius: 8px; }
+
+        /* Headings & Labels */
+        .section-heading { color: #C2410C; font-weight: 700; text-align: center; border-bottom: 2px dashed #FDBA74; padding-bottom: 0.5rem; margin-bottom: 1rem; font-size: 1.125rem; }
+        label { color: #9A3412; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem; display: block; }
+
+        /* Footer Styling */
+        .page-footer {
+            text-align: center;
+            padding: 1rem 0; /* py-4 */
+            margin-top: 2rem; /* mt-8 */
+            font-size: 0.75rem; /* text-xs */
+            color: #6B7280; /* text-gray-500 */
+            flex-shrink: 0; /* Prevent footer from shrinking */
+        }
+
+    </style>
+</head>
+<body class="p-4 md:p-6">
+
+    <main> 
+        <div class="main-container">
+            <h1 class="text-3xl sm:text-4xl font-bold text-center text-slate-800 mb-8 tracking-tight flex items-center justify-center gap-3">
+                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-9 h-9 text-orange-500">
+                   <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z" />
+                 </svg>
+                ASCII Art Generator!
+            </h1>
+
+            <div class="section-container">
+                <h2 class="section-heading">🖼️ Upload Image</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                    <div class="md:col-span-2">
+                        <label for="imageUpload">Select Image File:</label>
+                        <label for="imageUpload" class="file-input-label w-full justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
+                            Choose Image...
+                        </label>
+                        <input type="file" id="imageUpload" accept="image/*">
+                        <div class="flex justify-between items-center mt-2">
+                            <span id="fileName" class="text-sm text-amber-800 italic"></span>
+                             <button id="clearImageBtn" class="text-xs text-red-600 hover:text-red-800 font-medium hidden">&times; Clear Image</button>
+                        </div>
+                        <div class="image-preview-box">
+                            <img id="imagePreview" src="#" alt="Image Preview" class="hidden" />
+                            <span id="imagePlaceholder" class="text-xs italic text-amber-700">Image preview will appear here</span>
+                        </div>
+                    </div>
+                </div>
+                 <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
+                     <div>
+                         <label for="charsetSelect">Character Set:</label>
+                         <select id="charsetSelect" class="!py-2 !text-sm">
+                             {/* Options added dynamically */}
+                         </select>
+                     </div>
+                     <div id="customCharsetDiv" class="hidden">
+                         <label for="customCharsetInput">Custom Chars (Light->Dark):</label>
+                         <input type="text" id="customCharsetInput" class="!py-2 !text-sm" value=" .:-=+*#%@">
+                     </div>
+                     <div class="text-center sm:col-span-2 md:col-span-1 md:text-right">
+                         <button id="generateBtn" class="action-button w-full md:w-auto">
+                             Generate ASCII
+                         </button>
+                     </div>
+                 </div>
+            </div>
+
+
+            <div id="resultsArea" class="results-container hidden">
+                 <button id="copyBtn" class="copy-button" title="Copy ASCII Art">
+                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.378h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876V5.25a.75.75 0 00-.75-.75h-1.5a.75.75 0 00-.75.75v.443A9.003 9.003 0 006 8.625a9.003 9.003 0 00-1.5-.781V5.25a.75.75 0 00-.75-.75h-1.5a.75.75 0 00-.75.75v1.69" /></svg>
+                     Copy
+                 </button>
+                <pre id="asciiOutput"><span class="placeholder-text">Upload an image and click Generate!</span></pre>
+            </div>
+
+             <canvas id="processingCanvas" class="hidden"></canvas>
+
+        </div>
+    </main>
+
+    
+    <footer class="page-footer">
+        <p>Built with ❤️ by Anas.</p>
+    </footer>
+
+    <script>
+        // --- DOM Elements ---
+        // Removed textInput reference
+        const imageUpload = document.getElementById('imageUpload');
+        const fileNameSpan = document.getElementById('fileName');
+        const imagePreview = document.getElementById('imagePreview');
+        const imagePlaceholder = document.getElementById('imagePlaceholder');
+        const clearImageBtn = document.getElementById('clearImageBtn'); // Added clear button
+        const charsetSelect = document.getElementById('charsetSelect');
+        const customCharsetDiv = document.getElementById('customCharsetDiv');
+        const customCharsetInput = document.getElementById('customCharsetInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const resultsArea = document.getElementById('resultsArea');
+        const asciiOutput = document.getElementById('asciiOutput');
+        const copyBtn = document.getElementById('copyBtn');
+        const processingCanvas = document.getElementById('processingCanvas');
+
+        // --- State ---
+        let uploadedImageSrc = null;
+        let asciiWidth = 80; // Default width in characters
+
+        // --- ASCII Character Sets (Expanded) ---
+        // Order: Lightest appearance -> Darkest appearance
+        const charsets = {
+            detailed_dark: ' `@%#*+=-:. ',    // Darkest first (will be reversed)
+            simple:        ' .,-=+*#%@',
+            blocks:        ' ░▒▓█',
+            binary:        ' 01',
+            slashes:       ' ./\\|',
+            lines:         ' .-:=+*#%@",', // Variation
+            special:       ' ·-+o*O#@',
+            complex:       ' $#@&%*+=-;:,. ', // Darkest first (will be reversed)
+            dots_light:    ' .:*|',
+            dots_medium:   ' .:;░▒',
+            dots_heavy:    ' ▒▓█',
+            custom:        '' // Will be filled from input
+        };
+        // Pre-reverse the ones that are listed dark-to-light
+        const reversedDetailedCharset = charsets.detailed_dark.split('').reverse().join('');
+        const reversedComplexCharset = charsets.complex.split('').reverse().join('');
+
+        // --- Populate Charset Select ---
+        function populateCharsetSelect() {
+            charsetSelect.innerHTML = ''; // Clear existing options
+            const options = [
+                { value: 'detailed', text: `Detailed (${reversedDetailedCharset.trim()})` }, // Show reversed
+                { value: 'simple', text: `Simple (${charsets.simple.trim()})` },
+                { value: 'blocks', text: `Blocks (${charsets.blocks.trim()})` },
+                { value: 'slashes', text: `Slashes (${charsets.slashes.trim()})` },
+                { value: 'lines', text: `Lines (${charsets.lines.trim()})` },
+                { value: 'special', text: `Special (${charsets.special.trim()})` },
+                { value: 'complex', text: `Complex (${reversedComplexCharset.trim()})` }, // Show reversed
+                { value: 'dots_light', text: `Dots Light (${charsets.dots_light.trim()})` },
+                { value: 'dots_medium', text: `Dots Medium (${charsets.dots_medium.trim()})` },
+                { value: 'dots_heavy', text: `Dots Heavy (${charsets.dots_heavy.trim()})` },
+                { value: 'binary', text: `Binary (${charsets.binary.trim()})` },
+                { value: 'custom', text: 'Custom' }
+            ];
+
+            options.forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt.value;
+                option.textContent = opt.text;
+                if (opt.value === 'detailed') { // Set default selected
+                    option.selected = true;
+                }
+                charsetSelect.appendChild(option);
+            });
+        }
+
+
+        // --- Helper Functions ---
+
+        // Get the selected character set string, handling reversals
+        function getCharacterSet() {
+            const selected = charsetSelect.value;
+            if (selected === 'custom') {
+                // Reverse custom charset because we map light (0) to first char, dark (255) to last
+                return customCharsetInput.value.split('').reverse().join('') || reversedDetailedCharset; // Fallback
+            }
+
+            // Handle predefined sets that need reversal
+            if (selected === 'detailed') return reversedDetailedCharset;
+            if (selected === 'complex') return reversedComplexCharset;
+
+            // Return other sets as defined (assuming light to dark)
+            return charsets[selected] || reversedDetailedCharset; // Fallback
+        }
+
+        // Convert image data to ASCII art string
+        function imageToAscii(imageData, width, height, charset) {
+            let ascii = '';
+            const numChars = charset.length - 1; // Max index for charset
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const offset = (y * width + x) * 4;
+                    const r = imageData.data[offset];
+                    const g = imageData.data[offset + 1];
+                    const b = imageData.data[offset + 2];
+                    // Calculate grayscale value (luminance)
+                    const gray = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+                    // Map grayscale value (0-255) to character index
+                    // Ensure index stays within bounds [0, numChars]
+                    const charIndex = Math.max(0, Math.min(numChars, Math.round((gray / 255) * numChars)));
+                    ascii += charset[charIndex];
+                }
+                ascii += '\n'; // New line for each row
+            }
+            return ascii;
+        }
+
+        // Clear Image Selection
+        function clearImageSelection() {
+             uploadedImageSrc = null;
+             imagePreview.src = '#';
+             imagePreview.classList.add('hidden');
+             imagePlaceholder.classList.remove('hidden');
+             fileNameSpan.textContent = '';
+             imageUpload.value = ''; // Clear file input value
+             clearImageBtn.classList.add('hidden'); // Hide clear button
+        }
+
+        // --- Event Listeners ---
+
+        // Show/hide custom charset input
+        charsetSelect.addEventListener('change', () => {
+            customCharsetDiv.classList.toggle('hidden', charsetSelect.value !== 'custom');
+        });
+
+        // Handle Image Upload
+        imageUpload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            clearImageSelection(); // Clear previous image first
+
+            if (file) {
+                if (!file.type.startsWith('image/')) {
+                    alert("Please select an image file.");
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    uploadedImageSrc = e.target.result;
+                    imagePreview.src = uploadedImageSrc;
+                    imagePreview.classList.remove('hidden');
+                    imagePlaceholder.classList.add('hidden');
+                    fileNameSpan.textContent = file.name;
+                    clearImageBtn.classList.remove('hidden'); // Show clear button
+                    // Removed clearing of textInput as it doesn't exist
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+         // Clear Image Button
+         clearImageBtn.addEventListener('click', clearImageSelection);
+
+
+        // Generate Button Click
+        generateBtn.addEventListener('click', () => {
+            resultsArea.classList.add('hidden'); // Hide previous results
+            asciiOutput.textContent = ''; // Clear output
+            const placeholder = document.createElement('span');
+            placeholder.className = 'placeholder-text';
+            placeholder.textContent = 'Generating...';
+            asciiOutput.appendChild(placeholder);
+             resultsArea.classList.remove('hidden'); // Show area with placeholder
+             resultsArea.style.opacity = '0';
+             setTimeout(() => { resultsArea.style.opacity = '1'; }, 10);
+
+
+            // Use a small timeout to allow the UI to update before potentially heavy processing
+            setTimeout(() => {
+                try {
+                    const charset = getCharacterSet();
+                    if (!charset || charset.length < 2) {
+                         throw new Error("Character set must contain at least 2 characters.");
+                    }
+
+                    if (!uploadedImageSrc) { // Check if image is uploaded
+                         throw new Error("Please upload an image first.");
+                    }
+
+                    // --- Image Processing ---
+                    const img = new Image();
+                    img.onload = () => {
+                        const ctx = processingCanvas.getContext('2d');
+
+                        // Calculate aspect ratio and scaled dimensions
+                        const maxChars = asciiWidth; // Max characters wide
+                        const aspectRatio = img.width / img.height;
+                        // Calculate height based on width and aspect ratio, adjusting for character aspect ratio (approx 0.5)
+                        // Ensure height is at least 1
+                        const scaledHeight = Math.max(1, Math.round(maxChars / aspectRatio * 0.5));
+                        const scaledWidth = maxChars;
+
+                        processingCanvas.width = scaledWidth;
+                        processingCanvas.height = scaledHeight;
+
+                        // Draw image scaled onto canvas
+                        ctx.drawImage(img, 0, 0, scaledWidth, scaledHeight);
+
+                        // Get pixel data from scaled image
+                        const imageData = ctx.getImageData(0, 0, scaledWidth, scaledHeight);
+
+                        // Convert to ASCII
+                        const asciiArt = imageToAscii(imageData, scaledWidth, scaledHeight, charset);
+                        asciiOutput.textContent = asciiArt; // Display result
+                    };
+                    img.onerror = () => {
+                        throw new Error("Could not load the uploaded image.");
+                    };
+                    img.src = uploadedImageSrc;
+
+
+                } catch (error) {
+                     console.error("ASCII Generation Error:", error);
+                     asciiOutput.innerHTML = `<span class="placeholder-text !text-red-600">Error: ${error.message}</span>`;
+                } finally {
+                     // Ensure results area is visible even after error
+                     resultsArea.classList.remove('hidden');
+                     resultsArea.style.opacity = '1';
+                }
+            }, 50); // Short delay before processing
+
+        });
+
+        // Copy Button Click
+        copyBtn.addEventListener('click', () => {
+            const textToCopy = asciiOutput.textContent;
+            const placeholder = asciiOutput.querySelector('.placeholder-text');
+            if (!textToCopy || placeholder) {
+                alert("Nothing to copy yet!");
+                return;
+            }
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => alert("ASCII art copied to clipboard!"))
+                .catch(err => {
+                    console.error("Copy failed:", err);
+                    alert("Could not copy text.");
+                });
+        });
+
+        // --- Initial Load ---
+        populateCharsetSelect(); // Populate the dropdown
+        charsetSelect.dispatchEvent(new Event('change')); // Trigger change to set initial custom input visibility
+
+    </script>
+
+</body>
+</html>
