@@ -2,9 +2,6 @@
 
 Transform your images into amazing character-based art with this fun, client-side ASCII Art Generator! Upload an image, choose your character set, and see the magic happen. 💻
 
-![ASCII Art Generator Screenshot Placeholder](https://placehold.co/600x400/FFF7ED/C2410C?text=ASCII+Art+Generator+Screenshot)
-*(Replace the placeholder URL above with an actual screenshot of your app!)*
-
 ## 🔥 Features
 
 * **⬆️ Image Upload:** Easily upload your image files (JPEG, PNG, GIF, etc.).
